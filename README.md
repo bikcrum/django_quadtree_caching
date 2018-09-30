@@ -1,1 +1,1 @@
-## This is example of how to use to quadtree and save it in sql database
+## This is example of how to use to quadtree and cache it
