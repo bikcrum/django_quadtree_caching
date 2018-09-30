@@ -53,9 +53,6 @@ class QuadTree:
         if not self.boundary.contains(point):
             return False
 
-        if point in self.points:
-            return False
-
         if len(self.points) < self.capacity:
             self.points.append(point)
             return True

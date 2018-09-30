@@ -9,18 +9,13 @@ import string
 
 from django.core.cache import cache
 
-
 def index(request):
-    # locations = Location.objects.all()
-    points = cache.get('points')
+    points = []
+    no_of_points = 1000
 
-    if points == None:
-        print('no cache for points available')
-        points = [Point(x=random.randint(-180, 181), y=random.randint(-90, 91)) for _ in range(1000)]
-        print('created points')
-        cache.set('points', points)
-    else:
-        print('points loaded from cache:')
+    if cache.get('no_of_points') == None or cache.get('no_of_points') != no_of_points:
+        cache.clear()
+        cache.set('no_of_points', no_of_points, None)
 
     quadtree = cache.get('quadtree')
     boundary = Rectangle(-180, -90, 360, 180)
@@ -28,14 +23,18 @@ def index(request):
     if quadtree == None:
         print('no cache for quadtree available')
         quadtree = QuadTree(boundary=boundary)
-        for point in points:
+        for _ in range(no_of_points):
+            point = Point(x=random.randint(-180, 181), y=random.randint(-90, 91))
             quadtree.insert(point)
+            points.append(point)
 
         print('created quadtree')
 
-        cache.set('quadtree', quadtree)
+        cache.set('quadtree', quadtree, None)
+        cache.set('points', points, None)
     else:
         print('quadtree loaded from cache')
+        points = cache.get('points')
 
     w = random.randint(25, 101)
     h = random.randint(25, 101)
@@ -68,12 +67,10 @@ def index(request):
     context = {}
     return render(request, 'quadtree/index.html', context)
 
-
 def clear_cache(request):
     cache.clear()
     context = {}
     return render(request, 'quadtree/index.html', context)
-
 
 def create_random_user(request, count=1):
     for _ in range(count):
